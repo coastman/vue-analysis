@@ -3,6 +3,7 @@ import {
   hasOwn,
   isPlainObject
 } from './index'
+
 /**
  * @param {object} parent 必填
  * @param {object} child 必填
@@ -10,11 +11,16 @@ import {
  * @return {object}
  */
 export function mergeOptions (parent, child, vm) {
+  // 校验组件名称是否合法
   checkComponents(child)
+  // 序列化props
   normalizeProps(child, vm)
+  // 序列化inject
   normalizeInject(child, vm)
+  // 序列化指令
   normalizeDirectives(child)
 
+  // TODO...
   if (!child._base) {
     if (child.extends) {
       parent = mergeOptions(parent, child.extends, vm)
