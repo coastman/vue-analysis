@@ -19,7 +19,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       filename: 'index.html', 
-      template: 'index.html', //本地自定义模板
+      template: 'index.html' //本地自定义模板
     })
   ]
 }

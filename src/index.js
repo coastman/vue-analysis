@@ -6,6 +6,6 @@ new Vue({
     a: 1,
   },
   render() {
-    return <p>hello</p>
+    return <div>hello</div>
   }
 })

@@ -19,7 +19,6 @@ export function initMixin(Vue) {
       )
     }
     vm._self = vm
-    debugger
     vm.$mount(vm.$options.el)
   }
 }

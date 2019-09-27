@@ -1,8 +1,10 @@
-import { isTrue, isDef } from '../utils/index'
+import { isTrue, isDef, isPrimitive } from '../utils/index'
+import { createVnode } from '../vdom/create-vnode'
+import VNode from '../vdom/vnode'
 
-const SIMPLE_NORMALIZE = 1
-const ALWAYS_NORMALIZE = 2
-
+function emptyNodeAt(elm) {
+  return new VNode(elm.tagName.toLowerCase(), {}, [], undefined, elm)
+}
 
 export function lifecycleMixin (Vue) {
   Vue.prototype._update = function (vnode) {
@@ -10,130 +12,99 @@ export function lifecycleMixin (Vue) {
     const prevEl = vm.$el
     
     vm.$el = vm.__patch__(vm.$el, vnode, false, false /* removeOnly */)
-
   }
 
   Vue.prototype.__patch__ = function (oldVnode, vnode, hydrating, removeOnly) {
+    const insertedVnodeQueue = []
     const isRealElement = isDef(oldVnode.nodeType)
+    if (isRealElement) {
+      oldVnode = emptyNodeAt(oldVnode)
+    }
     const oldElm = oldVnode.elm
     const parentElm = oldElm.parentNode
   
-    // createElm(
-    //   vnode,
-    //   insertedVnodeQueue,
-    //   oldElm._leaveCb ? null : parentElm,
-    //   nodeOps.nextSibling(oldElm)
-    // )
+    createElm(
+      vnode,
+      insertedVnodeQueue,
+      oldElm._leaveCb ? null : parentElm,
+      oldElm.nextSibling
+    )
+    if (isDef(parentElm)) {
+      // body 
+      removeVnodes(parentElm, [oldVnode], 0, 0)
+    } else if (isDef(oldVnode.tag)) {
+
+    }
+    return vnode.elm
+  }
+}
+
+function removeVnodes(parentElm, vnodes, startIndex, endIndex) {
+  for (; startIndex <= endIndex; ++startIndex) {
+    const ch = vnodes[startIndex];
+    if (isDef(ch)) {
+      if (isDef(ch.tag)) {
+        removeAndInvokeRemoveHook(ch)
+      } else {
+        debugger
+      }
+    }
+  }
+}
+
+function removeAndInvokeRemoveHook(vnode) {
+  removeNode(vnode.elm)
+}
+
+function removeNode(el) {
+  const parent = el.parentNode
+  parent.removeChild(el)
+}
+
+function createElm(vnode, insertedVnodeQueue, parentElm, refElm, nested, ownerArray, index) {
+  // p [] app text
+  vnode.isRootInsert = !nested
+  const data = vnode.data
+  const children = vnode.children
+  const tag = vnode.tag
+
+  if (isDef(tag)) {
+    vnode.elm = document.createElement(tag)
+    createChildren(vnode, children, insertedVnodeQueue)
+    insert(parentElm, vnode.elm, refElm)
+  } else {
+    vnode.elm = document.createTextNode(vnode.text)
+    insert(parentElm, vnode.elm, refElm)
+  }
+}
+
+function createChildren(vnode, children, insertedVnodeQueue) {
+  if (Array.isArray(children)) {
+    for (let i = 0; i < children.length; i++) {
+      createElm(children[i], insertedVnodeQueue, vnode.elm, null, true, children, i)
+    }
+  } else if (isPrimitive(vnode.text)) {
+    vnode.elm.appendChild(document.createTextNode(String(vnode.text)))
+  }
+}
+
+function insert(parent, elm, ref) {
+  if (isDef(parent)) {
+    if (isDef(ref)) {
+      if (ref.parentNode === parent) {
+        parent.insertBefore(elm, ref)
+      }
+    } else {
+      parent.appendChild(elm)
+    }
   }
 }
 
 export function mountComponent(vm, el) {
   vm.$el = el
   const vnode = vm.$options.render((a, b, c, d) => {
-    return createElement(vm, a, b, c, d, true)
+    return createVnode(vm, a, b, c, d, true)
   })
+  
   vm._update(vnode)
-  // updateComponent(el.$options.render)
-}
-
-
-export function createElement (
-  context,
-  tag,
-  data,
-  children,
-  normalizationType,
-  alwaysNormalize
-) {
-  // p ['hello']
-  if (Array.isArray(data)) {
-    normalizationType = children
-    children = data
-    data = undefined
-  }
-  if (isTrue(alwaysNormalize)) {
-    normalizationType = ALWAYS_NORMALIZE
-  }
-  // vm, p, undefined, ['hello'], 2
-  return _createElement(context, tag, data, children, normalizationType)
-}
-
-export function _createElement (
-  context,
-  tag,
-  data,
-  children,
-  normalizationType
-) {
-
-  if (normalizationType === ALWAYS_NORMALIZE) {
-    children = normalizeChildren(children)
-  }
-
-  let vnode
-  if (typeof tag === 'string') {
-    vnode = new VNode(
-      tag, data, children,
-      undefined, undefined, context
-    )
-  }
-  console.log(vnode)
-  return vnode
-}
-
-function normalizeChildren(children) {
-  const res = []
-  let i, c, lastIndex, last
-  for (i = 0; i < children.length; i++) {
-    c = children[i]
-    lastIndex = res.length - 1
-    last = res[lastIndex]
-    res.push(createTextVNode(c))
-  }
-  return res
-}
-
-export function createTextVNode (val) {
-  return new VNode(undefined, undefined, undefined, String(val))
-}
-
-export default class VNode {
-  constructor (
-    tag,
-    data,
-    children,
-    text,
-    elm,
-    context,
-    componentOptions,
-    asyncFactory
-  ) {
-    this.tag = tag
-    this.data = data
-    this.children = children
-    this.text = text
-    this.elm = elm
-    this.ns = undefined
-    this.context = context
-    this.fnContext = undefined
-    this.fnOptions = undefined
-    this.fnScopeId = undefined
-    this.key = data && data.key
-    this.componentOptions = componentOptions
-    this.componentInstance = undefined
-    this.parent = undefined
-    this.raw = false
-    this.isStatic = false
-    this.isRootInsert = true
-    this.isComment = false
-    this.isCloned = false
-    this.isOnce = false
-    this.asyncFactory = asyncFactory
-    this.asyncMeta = undefined
-    this.isAsyncPlaceholder = false
-  }
-
-  get child () {
-    return this.componentInstance
-  }
 }
