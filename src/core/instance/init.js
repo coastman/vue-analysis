@@ -2,6 +2,7 @@ import { extend, mergeOptions } from '../utils/index'
 
 export function initMixin(Vue) {
   Vue.prototype._init = function (options) {
+    // vm 指向当前实例的化的vue
     const vm = this
     vm._isVue = true
 

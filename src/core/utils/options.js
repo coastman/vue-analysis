@@ -10,6 +10,13 @@ import {
  * @param {*} vm 非必填
  * @return {object}
  */
+const strats = {}
+const defaultStrat = function (parentVal, childVal) {
+  return childVal === undefined
+    ? parentVal
+    : childVal
+}
+
 export function mergeOptions (parent, child, vm) {
   // 校验组件名称是否合法
   checkComponents(child)
@@ -34,9 +41,13 @@ export function mergeOptions (parent, child, vm) {
 
   const options = {}
   let key
+  // 遍历Vue构造函数上的属性，如filters，components, directives, _base
+  // 如果子options中有相同的属性， 则子options的属性为主。
   for (key in parent) {
     mergeField(key)
   }
+
+  // 遍历子options中的属性
   for (key in child) {
     if (!hasOwn(parent, key)) {
       mergeField(key)
@@ -46,6 +57,8 @@ export function mergeOptions (parent, child, vm) {
     const strat = strats[key] || defaultStrat
     options[key] = strat(parent[key], child[key], vm, key)
   }
+
+  // 最终返回合并后的options
   return options
 }
 
