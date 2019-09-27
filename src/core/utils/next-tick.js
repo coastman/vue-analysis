@@ -17,7 +17,7 @@ if (typeof Promise !== undefined) {
   timerFunc = () => {
     p.then(flushCallbacks)
   }
-  isUsingMicroTask = true
+  // isUsingMicroTask = true
 } else {
   timerFunc = () => {
     setTimeout(flushCallbacks, 0)
