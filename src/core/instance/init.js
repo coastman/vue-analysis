@@ -17,6 +17,7 @@ export function initMixin(Vue) {
         vm
       )
     }
+    vm._self = vm
   }
 }
 
