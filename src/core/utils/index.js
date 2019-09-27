@@ -40,3 +40,11 @@ export function isValidArrayIndex (val) {
   const n = parseFloat(String(val))
   return n >= 0 && Math.floor(n) === n && isFinite(val)
 }
+
+export function isTrue (v) {
+  return v === true
+}
+
+export function isDef(v) {
+  return v !== undefined && v !== null
+}

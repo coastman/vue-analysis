@@ -1,5 +1,11 @@
 import Vue from './instance/index'
 import { initGlobalAPI } from './global-api/index'
+import { mountComponent } from './instance/lifecycle'
+
+Vue.prototype.$mount = function (el) {
+  const selected = document.querySelector(el)
+  return mountComponent(this, selected)
+}
 
 initGlobalAPI(Vue)
 /**
