@@ -46,7 +46,6 @@ function removeVnodes(parentElm, vnodes, startIndex, endIndex) {
       if (isDef(ch.tag)) {
         removeAndInvokeRemoveHook(ch)
       } else {
-        debugger
       }
     }
   }
@@ -102,9 +101,12 @@ function insert(parent, elm, ref) {
 
 export function mountComponent(vm, el) {
   vm.$el = el
+
   const vnode = vm.$options.render((a, b, c, d) => {
+    debugger
     return createVnode(vm, a, b, c, d, true)
   })
+  console.log(vnode)
   
   vm._update(vnode)
 }

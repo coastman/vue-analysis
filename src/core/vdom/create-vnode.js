@@ -10,7 +10,7 @@ const ALWAYS_NORMALIZE = 2
  * @param {any} data 相关数据
  * @param {array} children 子节点 
  * @param {any} normalizationType 
- * @param {any} alwaysNormalize
+ * @param {boolean} alwaysNormalize
  * @return {function} 返回一个创建vnode对象的函数 
  */
 export function createVnode(
@@ -63,6 +63,8 @@ function normalizeChildren(children) {
     c = children[i]
     if (isPrimitive(c)) {
       res.push(createTextVNode(c))
+    } else {
+      res.push(c)
     }
   }
   return res
@@ -71,4 +73,8 @@ function normalizeChildren(children) {
 // 创建文本vnode
 function createTextVNode(val) {
   return new VNode(undefined, undefined, undefined, String(val))
+}
+
+function isTextNode(node) {
+  return isDef(node) && isDef(node.text)
 }
