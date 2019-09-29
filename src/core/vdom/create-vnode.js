@@ -69,3 +69,23 @@ function normalizeChildren(children) {
   }
   return res
 }
+
+// const cbs = {}
+// const cbs = {
+//   create: [
+//     create()
+//   ],
+//   update: [
+//     update()
+//   ],
+// }
+
+// const attrs = {
+//   create(),
+//   update(),
+// }
+
+// const modules = [
+//   attrs,
+//   style,
+// ]

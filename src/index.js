@@ -6,9 +6,9 @@ new Vue({
     a: 1,
   },
   render() {
-    return <div id="app">
-      <h1>
-        <p>hello</p>
+    return <div id="app" class="app root" data-root="root">
+      <h1 data-h="h">
+        <p data-p="p">hello</p>
       </h1>  
     </div>
   }

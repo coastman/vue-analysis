@@ -18,16 +18,35 @@ export function patch(oldVnode, vnode) {
 }
 
 function createElm(vnode, parentElm, refElm) {
-  const children = vnode.children
   const tag = vnode.tag
+  const data = vnode.data
+  const children = vnode.children
 
   if (isDef(tag)) {
     vnode.elm = document.createElement(tag)
+    if (isDef(data)) {
+      setAttrs(vnode)
+    }
     createChildren(vnode, children)
     insert(parentElm, vnode.elm, refElm)
   } else {
     vnode.elm = document.createTextNode(vnode.text)
     insert(parentElm, vnode.elm, refElm)
+  }
+}
+
+function setAttrs(vnode) {
+  const data = vnode.data
+  if (isDef(data.attrs)) {
+    const attrs = data.attrs
+    for (const key in attrs) {
+      if (attrs.hasOwnProperty(key)) {
+        vnode.elm.setAttribute(key, attrs[key])
+      }
+    }
+  }
+  if (data.class) {
+    vnode.elm.setAttribute('class', data.class)
   }
 }
 
