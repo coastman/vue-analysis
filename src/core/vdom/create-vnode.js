@@ -1,5 +1,5 @@
 import { isTrue, isDef, isPrimitive } from '../utils/index'
-import VNode from './vnode'
+import VNode, { createTextVNode } from './vnode'
 
 const ALWAYS_NORMALIZE = 2
 
@@ -68,13 +68,4 @@ function normalizeChildren(children) {
     }
   }
   return res
-}
-
-// 创建文本vnode
-function createTextVNode(val) {
-  return new VNode(undefined, undefined, undefined, String(val))
-}
-
-function isTextNode(node) {
-  return isDef(node) && isDef(node.text)
 }
