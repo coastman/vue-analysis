@@ -8,25 +8,31 @@ function emptyNodeAt(elm) {
 
 export function lifecycleMixin (Vue) {
   Vue.prototype._update = function (vnode) {
+    debugger
     const vm = this
     const prevEl = vm.$el
     
-    vm.$el = vm.__patch__(vm.$el, vnode, false, false /* removeOnly */)
+    vm.$el = vm.__patch__(vm.$el, vnode)
   }
 
-  Vue.prototype.__patch__ = function (oldVnode, vnode, hydrating, removeOnly) {
-    const insertedVnodeQueue = []
+  /**
+   * @description 用虚拟dom创建真实的dom渲染到页面上
+   * @param {object} oldVnode
+   * @param {object} vnode 
+   * @return 真实的dom
+   */
+  Vue.prototype.__patch__ = function (oldVnode, vnode) {
     const isRealElement = isDef(oldVnode.nodeType)
     if (isRealElement) {
       oldVnode = emptyNodeAt(oldVnode)
     }
     const oldElm = oldVnode.elm
     const parentElm = oldElm.parentNode
+    debugger
   
     createElm(
       vnode,
-      insertedVnodeQueue,
-      oldElm._leaveCb ? null : parentElm,
+      parentElm,
       oldElm.nextSibling
     )
     if (isDef(parentElm)) {
@@ -60,16 +66,16 @@ function removeNode(el) {
   parent.removeChild(el)
 }
 
-function createElm(vnode, insertedVnodeQueue, parentElm, refElm, nested, ownerArray, index) {
-  // p [] app text
-  vnode.isRootInsert = !nested
+function createElm(vnode, parentElm, refElm) {
+  // div [] body h1
   const data = vnode.data
   const children = vnode.children
   const tag = vnode.tag
+  debugger
 
   if (isDef(tag)) {
     vnode.elm = document.createElement(tag)
-    createChildren(vnode, children, insertedVnodeQueue)
+    createChildren(vnode, children)
     insert(parentElm, vnode.elm, refElm)
   } else {
     vnode.elm = document.createTextNode(vnode.text)
@@ -77,10 +83,10 @@ function createElm(vnode, insertedVnodeQueue, parentElm, refElm, nested, ownerAr
   }
 }
 
-function createChildren(vnode, children, insertedVnodeQueue) {
+function createChildren(vnode, children) {
   if (Array.isArray(children)) {
     for (let i = 0; i < children.length; i++) {
-      createElm(children[i], insertedVnodeQueue, vnode.elm, null, true, children, i)
+      createElm(children[i], vnode.elm, null)
     }
   } else if (isPrimitive(vnode.text)) {
     vnode.elm.appendChild(document.createTextNode(String(vnode.text)))
@@ -103,7 +109,6 @@ export function mountComponent(vm, el) {
   vm.$el = el
 
   const vnode = vm.$options.render((a, b, c, d) => {
-    debugger
     return createVnode(vm, a, b, c, d, true)
   })
   console.log(vnode)
