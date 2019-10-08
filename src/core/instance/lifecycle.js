@@ -19,8 +19,8 @@ export function lifecycleMixin (Vue) {
 
 export function mountComponent(vm, el) {
   vm.$el = el
-
-  const vnode = vm.$options.render((a, b, c, d) => {
+  console.log(vm.$options.render.toString())
+  const vnode = vm.$options.render.call(vm, (a, b, c, d) => {
     return createVnode(vm, a, b, c, d, true)
   })
   console.log(vnode)

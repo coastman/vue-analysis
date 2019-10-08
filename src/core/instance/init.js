@@ -1,4 +1,5 @@
 import { extend, mergeOptions } from '../utils/index'
+import { initState } from './state'
 
 export function initMixin(Vue) {
   Vue.prototype._init = function (options) {
@@ -18,6 +19,7 @@ export function initMixin(Vue) {
       )
     }
     vm._self = vm
+    initState(vm)
     vm.$mount(vm.$options.el)
   }
 }

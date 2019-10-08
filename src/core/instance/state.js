@@ -1,8 +1,34 @@
 import {
   set,
   del,
+  observe,
 } from '../observer/index'
 import { isPlainObject } from '../utils';
+
+const sharedPropertyDefinition = {
+  enumerable: true,
+  configurable: true,
+  get: null,
+  set: null
+}
+
+export function proxy(target, sourceKey, key) {
+  sharedPropertyDefinition.get = function proxyGetter() {
+    return this[sourceKey][key]
+  }
+  sharedPropertyDefinition.set = function proxySetter(val) {
+    this[sourceKey][key] = val
+  }
+  Object.defineProperty(target, key, sharedPropertyDefinition)
+}
+
+// 初始化data
+export function initState(vm) {
+  const opts = vm.$options 
+  if (opts.data) {
+    initData(vm)
+  }
+}
 
 export function stateMixin(Vue) {
   const dataDef = {}
@@ -58,4 +84,16 @@ function createWatcher(vm, expOrFn, handler, options) {
   }
 
   return vm.$watch(expOrFn, handler, options)
+}
+
+// 为data做一层代理，修改this指向，并且把data中的属性变成响应式数据
+function initData(vm) {
+  let data = vm.$options.data
+  vm._data = data || {}
+  const keys = Object.keys(data)
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+    proxy(vm, '_data', key)
+  }
+  observe(data, true)
 }

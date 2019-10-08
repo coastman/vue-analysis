@@ -6,6 +6,7 @@ import {
   isPrimitive, 
   isValidArrayIndex 
 } from '../utils/index'
+import VNode from '../vdom/vnode'
 
 export let shouldObserve = true
 
@@ -42,7 +43,7 @@ export class Oberver {
 }
 
 export function observe(value, asRootData) {
-  if (!isObject(val) || value instanceof Vnode) return
+  if (!isObject(value) || value instanceof VNode) return
 
   let ob
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Oberver) {
