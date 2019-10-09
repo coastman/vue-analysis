@@ -7,10 +7,19 @@ new Vue({
     b: 2,
   },
   render() {
-    return <div id="app" class="app root" data-root="root">
-      <h1 data-h="h">
-        <p data-p="p">{ this.a + this.b }</p>
-      </h1>  
-    </div>
+    setTimeout(() => {
+      this.a = 2
+      console.log(this.a)
+    }, 3000);
+    return (
+      <div
+        id="app" 
+        class="app root" 
+        data-root="root">
+      <button>
+        {this.a}
+      </button> 
+      </div>
+    )
   }
 })

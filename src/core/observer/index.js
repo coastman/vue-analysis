@@ -1,5 +1,6 @@
 import { 
-  isObject, 
+  isObject,
+  def,
   hasOwn, 
   isPlainObject, 
   isUndef, 
@@ -7,6 +8,8 @@ import {
   isValidArrayIndex 
 } from '../utils/index'
 import VNode from '../vdom/vnode'
+import Dep from './dep'
+
 
 export let shouldObserve = true
 
@@ -50,10 +53,10 @@ export function observe(value, asRootData) {
     ob = value.__ob__
   } else if (
     shouldObserve 
-    && (Array.isArray(value || isPlainObject(value))
+    && (Array.isArray(value) || isPlainObject(value))
     && Object.isExtensible(value)
     && !value._isVue
-  )) {
+  ) {
     ob = new Oberver(value)
   }
   // if (asRootData && ob) {
@@ -63,7 +66,7 @@ export function observe(value, asRootData) {
 }
 
 export function defineReactive (obj, key, val, customSetter, shallow) {
-  // const dep = new Dep()
+  const dep = new Dep()
 
   const property = Object.getOwnPropertyDescriptor(obj, key)
   if (property && property.configurable === false) return
@@ -80,15 +83,9 @@ export function defineReactive (obj, key, val, customSetter, shallow) {
     configurable: true,
     get: function reactiveGetter() {
       const value = getter ? getter.call(obj) : val
-      // if (Dep.target) {
-      //   dep.depend()
-      //   if (childOb) {
-      //     childOb.dep.depend()
-      //     if (Array.isArray(value)) {
-      //       dependArray(value)
-      //     }
-      //   }
-      // }
+      if (Dep.target) {
+        dep.depend()
+      }
       return value
     },
     set: function reactiveSetter(newVal) {
@@ -106,7 +103,7 @@ export function defineReactive (obj, key, val, customSetter, shallow) {
         val = newVal
       }
       childOb = !shallow && observe(newVal)
-      // dep.notify()
+      dep.notify()
     }
   })
 }

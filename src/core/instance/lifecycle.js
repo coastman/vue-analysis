@@ -1,5 +1,6 @@
 import { createVnode } from '../vdom/create-vnode'
 import { patch } from '../vdom/patch'
+import Watcher from '../observer/watcher';
 
 export function lifecycleMixin (Vue) {
   Vue.prototype._update = function (vnode) {
@@ -20,10 +21,13 @@ export function lifecycleMixin (Vue) {
 export function mountComponent(vm, el) {
   vm.$el = el
   console.log(vm.$options.render.toString())
-  const vnode = vm.$options.render.call(vm, (a, b, c, d) => {
-    return createVnode(vm, a, b, c, d, true)
-  })
-  console.log(vnode)
-  
-  vm._update(vnode)
+  const updateComponent = () => {
+    const vnode = vm.$options.render.call(vm, (a, b, c, d) => {
+      return createVnode(vm, a, b, c, d, true)
+    })
+    vm._update(vnode)
+    console.log(vnode)
+  }
+
+  new Watcher(vm, updateComponent, null, null, true)
 }
