@@ -7,19 +7,21 @@ new Vue({
     b: 2,
   },
   render() {
-    setTimeout(() => {
-      this.a = 2
-      console.log(this.a)
-    }, 3000);
     return (
       <div
         id="app" 
         class="app root" 
         data-root="root">
-      <button>
-        {this.a}
-      </button> 
+        <button onClick={(e) => {this.buttonClick(e)}}>
+          {this.a}
+        </button> 
       </div>
     )
+  },
+  methods: {
+    buttonClick(e) {
+      console.log(e)
+      this.a++
+    }
   }
 })

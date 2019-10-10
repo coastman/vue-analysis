@@ -48,6 +48,13 @@ function setAttrs(vnode) {
   if (data.class) {
     vnode.elm.setAttribute('class', data.class)
   }
+  if (data.on) {
+    for (const key in data.on) {
+      if (data.on.hasOwnProperty(key)) {
+        vnode.elm.addEventListener(key, data.on[key])
+      }
+    }
+  }
 }
 
 function createChildren(vnode, children) {

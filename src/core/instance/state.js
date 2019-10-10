@@ -24,7 +24,10 @@ export function proxy(target, sourceKey, key) {
 
 // 初始化data
 export function initState(vm) {
-  const opts = vm.$options 
+  const opts = vm.$options
+  if (opts.methods) {
+    initMethods(vm, opts.methods)
+  }
   if (opts.data) {
     initData(vm)
   }
@@ -96,4 +99,10 @@ function initData(vm) {
     proxy(vm, '_data', key)
   }
   observe(data, true)
+}
+
+function initMethods(vm, methods) {
+  for (const key in methods) {
+    vm[key] = methods[key].bind(vm)
+  }
 }
