@@ -1,6 +1,8 @@
 import Dep, { pushTarget, popTarget } from './dep'
 import { nextTick } from '../utils';
 
+let uid = 0
+
 export default class Watcher {
   constructor(vm, expOrFn, cb, options, isRenderWatcher) {
     this.vm = vm
@@ -9,6 +11,7 @@ export default class Watcher {
     }
     // vm._watchers.push(this)
     this.cb = cb
+    this.id = ++uid
     this.deps = []
     this.newDeps = []
     this.getter = expOrFn
@@ -19,8 +22,13 @@ export default class Watcher {
     pushTarget(this)
     let value
     const vm = this.vm
-    value = this.getter.call(vm, vm)
-    popTarget()
+    try {
+      value = this.getter.call(vm, vm)
+    } catch (error) {
+      throw error
+    } finally {
+      popTarget()
+    }
     // this.cleanupDeps()
     return value
   }
@@ -36,24 +44,49 @@ export default class Watcher {
   run() {
     const value = this.get()
   }
-  // cleanupDeps() {
-  //   let i = this.deps.length
-  // }
 }
 
 const queue = []
 let flushing = false
+let has = {}
+let waiting = false
+let i = 0
 
 export function queueWatcher(watcher) {
-  queue.push(watcher)
-  nextTick(flushSchedulerQueue)
+  const id = watcher.id
+  if (has[id] == null) {
+    has[id] = true
+    if (!flushing) {
+      queue.push(watcher)
+    } else {
+      debugger
+      let j = queue.length - 1
+      while (j > i && queue[j].id > watcher.id) {
+        j--
+      }
+      queue.splice(j + 1, 0, watcher)
+    }
+    if (!waiting) {
+      waiting = true
+      nextTick(flushSchedulerQueue)
+    }
+  }
 }
 
 function flushSchedulerQueue() {
   flushing = true
-  let watcher
-  for (let i = 0; i < queue.length; i++) {
+  let watcher, id
+  for (i = 0; i < queue.length; i++) {
     watcher = queue[i]
+    id = watcher.id
+    has[id] = null
     watcher.run()
   }
+  resetSchedulerState()
+}
+
+function resetSchedulerState() {
+  i = queue.length = 0
+  has = {}
+  waiting = flushing = false
 }
